@@ -23,11 +23,3 @@
   ]
 }
 
-{
-  "build": {
-    "env": {
-      "PATH": "/usr/lib/postgresql/15/bin:$PATH",
-      "LD_LIBRARY_PATH": "/usr/lib/postgresql/15/lib:$LD_LIBRARY_PATH"
-    }
-  }
-}
