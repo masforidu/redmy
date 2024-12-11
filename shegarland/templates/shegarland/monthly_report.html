@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}Gabaasaa ji'aa{% endblock %}
+
+{% block content %}
+
+<!-- Report Selection Dropdown -->
+<div class="dropdown mb-3">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="reportDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Select Report Type
+    </button>
+    <div class="dropdown-menu" aria-labelledby="reportDropdown">
+        <a class="dropdown-item" href="{% url 'weekly_report' %}">Weekly Report</a>
+        <a class="dropdown-item" href="{% url 'monthly_report' %}">Monthly Report</a>
+        <a class="dropdown-item" href="{% url 'report' %}">report</a>
+    </div>
+</div>
+
+<a href="{% url 'export_report_csv' %}" class="btn btn-primary">CSVtti naa jijjiri</a>
+
+<h1>Gabaasaa Bankii Lafaa Ji'a kana</h1>
+
+<!-- Table for Monthly Submissions -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Kutaa Magaalaa</th>
+            <th>Tajajila Qophaef</th>
+            <th>Madda Lafa</th>
+            <th>Gosa Tajajila</th>
+            <th>Tajajila Iddoo</th>
+            <th>Balina Lafa</th>
+            <th>Balina Lafa Bahi Tae</th>
+            <th>Balina Lafa Hafe</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for submission in submissions %}
+        <tr>
+            <td>{{ submission.user.username }}</td>
+            <td>{{ submission.Kutaamagaalaa }}</td>
+            <td>{{ submission.tajajila_qophaef }}</td>
+            <td>{{ submission.madda_lafa }}</td>
+            <td>{{ submission.gosa_tajajila }}</td>
+            <td>{{ submission.tajajila_iddo }}</td>
+            <td>{{ submission.balina_lafa }}</td>
+            <td>{{ submission.bal_lafa_bahi_tae }}</td>
+            <td>{{ submission.bal_lafa_hafe }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+ <!-- Pagination Controls -->
+ <div class="pagination" style="text-align: center; margin: 20px 0;">
+    <span>
+        {% if submissions.has_previous %}
+            <a href="?page={{ submissions.previous_page_number }}" class="btn btn-outline-primary">Previous</a>
+        {% else %}
+            <button class="btn btn-outline-secondary" disabled>Previous</button>
+        {% endif %}
+
+        <span class="mx-3">Page {{ submissions.number }} of {{ submissions.paginator.num_pages }}</span>
+
+        {% if submissions.has_next %}
+            <a href="?page={{ submissions.next_page_number }}" class="btn btn-outline-primary">Next</a>
+        {% else %}
+            <button class="btn btn-outline-secondary" disabled>Next</button>
+        {% endif %}
+    </span>
+</div>
+<!-- Summary Table for Aggregates -->
+<h2>Cuunfaa Gabaasaa Balina lafa Galii fi Bahi ta'e</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Kutaa Magaalaa</th>
+            <th>Total Balina Lafa</th>
+            <th>Total Balina Lafa Bahi Tae</th>
+            <th>Total Balina Lafa Hafe</th>
+            <th>Net Balina Lafa Hafe</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in aggregate_data %}
+        <tr>
+            <td>{{ item.Kutaamagaalaa }}</td>
+            <td>{{ item.total_balina_lafa }}</td>
+            <td>{{ item.total_balina_lafa_bahi_tae }}</td>
+            <td>{{ item.total_balina_lafa_hafe }}</td>
+            <td>{{ item.net_bal_lafa_hafe }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Overall Summary -->
+<h2>Cuunfaa Balina Lafaa Bahee fi Jiruu</h2>
+<table class="table table-bordered">
+    <tr>
+        <td>Ida'ama Balina Lafa:</td>
+        <td>{{ monthly_total_balina_lafa }}</td>
+    </tr>
+    <tr>
+        <td>Ida'ama Balina Lafa Bahi Tae:</td>
+        <td>{{ monthly_total_bal_bahi_tae }}</td>
+    </tr>
+    <tr>
+        <td>Ida'ama Balina Lafa Hafe:</td>
+        <td>{{ monthly_total_bal_hafe }}</td>
+    </tr>
+    <tr>
+        <td>Balina Lafa Hafe:</td>
+        <td>{{ monthly_adjusted_total_balina_lafa }}</td>
+    </tr>
+</table>
+
+<!-- Graphs using Chart.js -->
+<h2>Giraafii Bankii Lafaa Kutaamagala</h2>
+<canvas id="KutaamagaalaaChart"></canvas>
+<canvas id="KutaamagaalaaChartBahi"></canvas>
+<canvas id="KutaamagaalaaChartHafe"></canvas>
+<canvas id="tajajilaChart"></canvas>
+<canvas id="maddaChart"></canvas>
+<canvas id="gosaChart"></canvas>
+<canvas id="tajajilaiddoChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+ // Magaalaa vs Balina Lafa Chart
+ var KutaamagaalaaCtx = document.getElementById('KutaamagaalaaChart').getContext('2d');
+ var KutaamagaalaaChart = new Chart(KutaamagaalaaCtx, {
+     type: 'bar',
+     data: {
+         labels: [{% for item in Kutaamagaalaa_vs_balina_lafa %}'{{ item.Kutaamagaalaa }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+         datasets: [{
+             label: 'Balina Lafa kutaa magaalan qophae fi baankii lafatti galmae',
+             data: [{% for item in Kutaamagaalaa_vs_balina_lafa %}{{ item.total_balina }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+             backgroundColor: 'rgba(0, 128, 0, 0.8)',
+             borderColor: 'rgba(50, 205, 50, 1)',
+             borderWidth: 5
+         }]
+     },
+ });
+
+
+ // Magaalaa vs Balina Lafa hafe Chart
+ var KutaamagaalaaCtxHafe = document.getElementById('KutaamagaalaaChartHafe').getContext('2d');
+ var magaalaaChartHafe = new Chart(KutaamagaalaaCtxHafe, {
+     type: 'bar',
+     data: {
+         labels: [{% for item in Kutaamagaalaa_vs_bal_lafa_hafee %}'{{ item.Kutaamagaalaa }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+         datasets: [{
+             label: 'Balina Lafa hafe',
+             data: [{% for item in Kutaamagaalaa_vs_bal_lafa_hafee %}{{ item.total_bal_hafe }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+             backgroundColor: 'rgba(75, 0, 130, 0.8)',
+             borderColor: 'rgba(240, 255, 255, 0.8)',
+             borderWidth: 5
+         }]
+     },
+ });
+
+ // Tajajila Qophaef vs Balina Lafa Chart
+ var tajajilaCtx = document.getElementById('tajajilaChart').getContext('2d');
+ var tajajilaChart = new Chart(tajajilaCtx, {
+     type: 'bar',
+     data: {
+         labels: [{% for item in tajajila_qophaef_vs_balina_lafa %}'{{ item.tajajila_qophaef }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+         datasets: [{
+             label: 'Tajaajilaa Qophaef (Purpose of preparation)',
+             data: [{% for item in tajajila_qophaef_vs_balina_lafa %}{{ item.total_balina }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+             backgroundColor: 'rgba(80, 200, 120, 0.8)',
+             borderColor: 'rgba(128, 0, 128, 1)',
+             borderWidth: 5
+         }]
+     },
+ });
+
+ // Madda Lafa vs Balina Lafa Chart
+ var maddaCtx = document.getElementById('maddaChart').getContext('2d');
+ var maddaChart = new Chart(maddaCtx, {
+     type: 'bar',
+     data: {
+         labels: [{% for item in madda_lafa_vs_balina_lafa %}'{{ item.madda_lafa }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+         datasets: [{
+             label: 'Maddaa Lafa (Source of Land)',
+             data: [{% for item in madda_lafa_vs_balina_lafa %}{{ item.total_balina }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+             backgroundColor: 'rgba(54, 69, 79, 0.8)',
+             borderColor: 'rgba(0, 0, 255, 1)',
+             borderWidth: 5
+         }]
+     },
+ });
+
+ // Tajajila Iddoo vs Balina Lafa Chart
+ var tajajilaiddoCtx = document.getElementById('tajajilaiddoChart').getContext('2d');
+ var tajajilaiddoChart = new Chart(tajajilaiddoCtx, {
+     type: 'bar',
+     data: {
+         labels: [{% for item in tajajila_iddo_vs_balina_lafa %}'{{ item.tajajila_iddo }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+         datasets: [{
+             label: 'Tajajilaa Iddoo (Based on Land use)',
+             data: [{% for item in tajajila_iddo_vs_balina_lafa %}{{ item.total_balina }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+             backgroundColor: 'rgba(255, 99, 132, 0.2)',
+             borderColor: 'rgba(255, 99, 132, 1)',
+             borderWidth: 5
+         }]
+     },
+ });
+
+ // Gosa Tajajila vs Balina Lafa Chart
+ var gosaCtx = document.getElementById('gosaChart').getContext('2d');
+ var gosaChart = new Chart(gosaCtx, {
+     type: 'bar',
+     data: {
+         labels: [{% for item in gosa_tajajila_vs_balina_lafa %}'{{ item.gosa_tajajila }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+         datasets: [{
+             label: 'Gosaa Tajajilaa (Current status of land)',
+             data: [{% for item in gosa_tajajila_vs_balina_lafa %}{{ item.total_balina }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+             backgroundColor: 'rgba(255, 99, 132, 0.8)',
+             borderColor: 'rgba(183, 65, 14, 1)',
+             borderWidth: 5
+         }]
+     },
+ });
+</script>
+
+{% endblock %}

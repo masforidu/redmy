@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Submission</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Edit Submission</h1>
+
+        <!-- Notification messages -->
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'edit_submission' submission.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Loop through the form fields -->
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="{% if field.field.required %}required-field{% endif %}">
+                        {{ field.label }}
+                    </label>
+        
+                    <!-- Check if the field is admin-only -->
+                    {% if field.name in admin_only_fields %}
+                        {% if user.is_superuser %}
+                            {{ field }}  <!-- Admins can edit this field -->
+                            <small class="form-text text-muted">Editable by administrators only</small>
+                        {% else %}
+                            <!-- Regular users see the field as read-only -->
+                            <input type="text" class="form-control" value="{{ field.value }}" readonly>
+                            <small class="form-text text-muted">Admin-only field, not editable</small>
+                        {% endif %}
+                    {% else %}
+                        <!-- Normal editable field for all users -->
+                        {{ field }}
+                    {% endif %}
+                    
+                    <div class="help-text">{{ field.help_text }}</div>
+                </div>
+            {% endfor %}
+        
+            <!-- Submit and Cancel buttons -->
+            <button type="submit" class="btn btn-primary">Update Submission</button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </form>

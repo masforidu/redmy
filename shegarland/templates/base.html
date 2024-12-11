@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ShegarLand{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'shegarland/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'shegarland/css/style.css' %}">
+    <!-- Font Awesome for Notification Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+        header, footer {
+            background-color: purple;
+            color: blue;
+        }
+        .navbar {
+            background-color: silver;
+        }
+        .navbar-brand, .nav-link {
+            color: blue !important;
+        }
+        .nav-link:hover {
+            color: darkblue !important;
+        }
+        .footer {
+            color: blue;
+            padding: 5px 0;
+            text-align: center;
+        }
+        .footer a {
+            color: blue;
+        }
+        .footer a:hover {
+            color: darkblue;
+        }
+        .hero {
+            background-color: azure;
+            height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: maroon;
+            text-align: center;
+            position: relative;
+        }
+        .hero img {
+            width: 80px;
+            position: absolute;
+            top: 10%;
+            transform: translateY(-50%);
+        }
+        .hero img.oro-log {
+            left: 0px;
+        }
+        .hero img.shegarlog {
+            right: 0px;
+        }
+        main.container {
+            background-color: gray;
+            color: indigo;
+            padding: 60px;
+            border-radius: 10px;
+        }
+        .card {
+            margin: 30px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        /* Notification Badge */
+        .notification-bell {
+            position: relative;
+            font-size: 24px;
+        }
+        .notification-bell .badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            padding: 0.2em 0.5em;
+            border-radius: 50%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="hero">
+            <div>
+                <h1>W/ra Lafaa Magaala Shaggar, Daarektoreetii Q/B/E/Lafaa</h1>
+                <h1>'Welcome to Shegar Land Office, Land Prep. and Bank Director'</h1>
+                <p>Ergamni Keenya Sirna bulchiinsaa fi itti fayyadama lafaa wayitawwaa ta’e dirirsuun, Misooma Lafa irrattii gaggeeffamu karaa Itti fufinsaan qabuun hogganuun, fayyadamummaa hawwaasa Magaalichaa mirkaneessuu.</p>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" href="{% url 'home' %}">Baafata/Home/</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Galma'uuf/Sign Up/</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Seensaa/Sign in/</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Ragaa Bankii Lafaa/Dashboard/</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'submit_form' %}">Fuulaa Galmee qophii fi Baankii lafaa/Form/</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Gabatee baankii lafaa waligalaa/Admin Dashboard/</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'report' %}">Gabaasaa/Report/</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">Odeffannoo/About/</a></li>
+
+                    <!-- Notification Icon -->
+                    <li class="nav-item">
+                        <a class="nav-link notification-bell" href="{% url 'notifications' %}">
+                            <i class="fas fa-bell"></i>
+                            {% if unread_notifications_count > 0 %}
+                                <span class="badge">{{ unread_notifications_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-5">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer mt-5">
+        <p>© 2024 Redwan Sultan. All rights reserved | 
+           <a href="{% url 'privacy_policy' %}">Privacy Policy</a> | 
+           <a href="{% url 'terms_of_service' %}">Terms of Service</a>
+        </p>
+    </footer>
+
+    <script src="{% static 'shegarland/js/jquery.min.js' %}"></script>
+    <script src="{% static 'shegarland/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- JavaScript to dynamically update the notification count -->
+    <script>
+        function updateNotificationCount() {
+            $.ajax({
+                url: "{% url 'unread_notifications_count' %}", // URL to fetch the unread count
+                method: "GET",
+                success: function(data) {
+                    const badge = $('.notification-bell .badge');
+                    if (data.unread_count > 0) {
+                        if (badge.length) {
+                            badge.text(data.unread_count); // Update existing badge
+                        } else {
+                            $('.notification-bell').append(<span class="badge">${data.unread_count}</span>); // Add badge
+                        }
+                    } else {
+                        badge.remove(); // Remove badge if no unread notifications
+                    }
+                }
+            });
+        }
+
+        // Update the notification count every 30 seconds
+        setInterval(updateNotificationCount, 30000);
+    </script>
+</body>
+</html>

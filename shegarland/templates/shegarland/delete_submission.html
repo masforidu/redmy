@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Submission</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Delete Submission</h1>
+        <p>Are you sure you want to delete this submission?</p>
+        <p><strong>User:</strong> {{ submission.user.username }}</p>
+        <p><strong>Kutaa magaalaa:</strong> {{ submission.Kutaamagaalaa }}</p>
+        <p><strong>Aanaa:</strong> {{ submission.Aanaa }}</p>
+        <!-- Add other fields as necessary -->
+        <form method="POST" action="{% url 'delete_submission' submission.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}All-Time Report{% endblock %}
+
+{% block content %}
+<a href="{% url 'export_report_csv' %}" class="btn btn-primary">CSVtti naa jijjiri</a>
+
+<h1>All-Time Report Bankii Lafaa</h1>
+
+<!-- Dropdown for Report Types -->
+<div class="dropdown mb-3">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="reportDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Select Report Type
+    </button>
+    <div class="dropdown-menu" aria-labelledby="reportDropdown">
+        <a class="dropdown-item" href="{% url 'weekly_report' %}">Weekly Report</a>
+        <a class="dropdown-item" href="{% url 'monthly_report' %}">Monthly Report</a>
+        <a class="dropdown-item" href="{% url 'all_time_report' %}">All-Time Report</a>
+    </div>
+</div>
+
+<h2>All-Time Land Data</h2>
+<h3>Aggregate Table</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Kutaa magaalaa</th>
+            <th>Total Balina Lafa</th>
+            <th>Balina Lafa Bahi Tae</th>
+            <th>Total Balina Lafa Hafe</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in all_time_aggregate %}
+        <tr>
+            <td>{{ item.Kutaamagaalaa }}</td>
+            <td>{{ item.total_balina_lafa }}</td>
+            <td>{{ item.bal_lafa_bahi_tae }}</td>
+            <td>{{ item.total_bal_lafa_hafe }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>All-Time Summary</h3>
+<table class="table table-bordered">
+    <tr><td>Total Balina Lafa:</td><td>{{ all_time_total_balina_lafa }}</td></tr>
+    <tr><td>Total Balina Lafa Bahi Tae:</td><td>{{ all_time_bal_bahi_tae }}</td></tr>
+    <tr><td>Total Balina Lafa Hafe:</td><td>{{ all_time_total_lafa_hafe }}</td></tr>
+</table>
+
+<h2>Land Data Graphs</h2>
+<canvas id="KutaamagaalaaChart"></canvas>
+<canvas id="KutaamagaalaaChartBahi"></canvas>
+<canvas id="KutaamagaalaaChartHafe"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Kutaamagaalaa vs Balina Lafa Chart
+    var KutaamagaalaaCtx = document.getElementById('KutaamagaalaaChart').getContext('2d');
+    new Chart(KutaamagaalaaCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for item in all_time_aggregate %}'{{ item.Kutaamagaalaa }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Balina Lafa by Kutaamagaalaa',
+                data: [{% for item in all_time_aggregate %}{{ item.total_balina_lafa }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: 'rgba(0, 128, 0, 0.8)',
+                borderColor: 'rgba(50, 205, 50, 1)',
+                borderWidth: 5
+            }]
+        }
+    });
+
+    // Kutaamagaalaa vs Balina Lafa Bahi Tae Chart
+    var KutaamagaalaaCtxBahi = document.getElementById('KutaamagaalaaChartBahi').getContext('2d');
+    new Chart(KutaamagaalaaCtxBahi, {
+        type: 'bar',
+        data: {
+            labels: [{% for item in all_time_Kutaamagaalaa_vs_bal_lafa_bahi_tae %}'{{ item.Kutaamagaalaa }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Balina Lafa Bahi Tae by Kutaamagaalaa',
+                data: [{% for item in all_time_Kutaamagaalaa_vs_bal_lafa_bahi_tae %}{{ item.total_bal_bahi_tae }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: 'rgba(128, 0, 0, 0.8)',
+                borderColor: 'rgba(255, 0, 255, 1)',
+                borderWidth: 5
+            }]
+        }
+    });
+
+    // Kutaamagaalaa vs Balina Lafa Hafe Chart
+    var KutaamagaalaaCtxHafe = document.getElementById('KutaamagaalaaChartHafe').getContext('2d');
+    new Chart(KutaamagaalaaCtxHafe, {
+        type: 'bar',
+        data: {
+            labels: [{% for item in all_time_Kutaamagaalaa_vs_bal_lafa_hafee %}'{{ item.Kutaamagaalaa }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Balina Lafa Hafe by Kutaamagaalaa',
+                data: [{% for item in all_time_Kutaamagaalaa_vs_bal_lafa_hafee %}{{ item.total_bal_hafe }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: 'rgba(75, 0, 130, 0.8)',
+                borderColor: 'rgba(240, 255, 255, 0.8)',
+                borderWidth: 5
+            }]
+        }
+    });
+</script>
+
+{% endblock %}

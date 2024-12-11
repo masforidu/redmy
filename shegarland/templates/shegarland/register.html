@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Galmee Miseensaa</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+    <p>Duraan Yoo Akkawuntii qabaattan? <a href="{% url 'login' %}">Asiin Seenaa</a>.</p>
+</div>
+{% endblock %}

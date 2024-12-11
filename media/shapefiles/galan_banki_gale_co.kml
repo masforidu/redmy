@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="galan_banki_gale_co" id="galan_banki_gale_co">
+	<SimpleField name="id" type="float"></SimpleField>
+	<SimpleField name="area" type="float"></SimpleField>
+</Schema>
+<Folder><name>galan_banki_gale_co</name>
+  <Placemark>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+      <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>38.8173979838245,8.84534551801064 38.8174796707766,8.84567118219484 38.8176144614202,8.84582501490927 38.8176816206562,8.84586947510952 38.8189706559881,8.84519296010329 38.8186699620975,8.84463076615098 38.8173979838245,8.84534551801064</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry>
+  </Placemark>
+</Folder>
+</Document></kml>

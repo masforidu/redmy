@@ -1,0 +1,23 @@
+<!-- templates/shegarland/login.html -->
+{% extends 'base.html' %}
+
+{% block title %}Karra seensaa{% endblock %}
+
+{% block content %}
+<h2>Fuula Seensaa/Baga Nagaan Dhuftaan/Kabajamoo Mamilaa Jechaa Darbii fi Lakkofsa Darbii keessan Galchaa/Login Page</h2>
+    {% if user.is_authenticated %}
+        <p>Baga Nagaan Dhuftan, {{ user.username }}!</p>
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Bahuf/logout/</button>
+        </form>
+    {% else %}
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Seeni!/Login/</button>
+        </form>
+        <!-- Password reset link -->
+        <p><a href="{% url 'password_reset' %}">Lakk darbii yoo dagattan?/Forgot your password?</a></p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Gabatee Ragaa{% endblock %}
+
+{% block content %}
+</li>
+<a href="{% url 'logout' %}" class="btn btn-outline-danger ml-2">Logout</a>
+</div>
+</nav>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gabatee ragaa Admini</title>
+
+<div class="container my-4">
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Navbar as requested -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'export_submissions' %}">Gabatee gara Excelitti Jijjiiru</a>
+        </li>
+    </nav>
+
+    <!-- Table styles as you requested -->
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: lavender;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4caf12;
+            color: #fff;
+        }
+    </style>
+
+    <h2 class="text-center mb-4">Gabatee Ragaa Bankii Lafaa</h2>
+
+    <!-- Table with your original style -->
+    <table class="table table-bordered table-hover table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Kutaa Magaalaa</th>
+                <th>Aanaa</th>
+                <th>Iddo Adda</th>
+                <th>Lakk Adda</th>
+                <th>Gosa Tajajila</th>
+                <th>Madda Lafa</th>
+                <th>Tajajila Iddo</th>
+                <th>Haala Beenya</th>
+                <th>Qamaa Qophaef</th>
+                <th>Tajajila Qophaef</th>
+                <th>Balina Lafa</th>
+                <th>Kan Qophesse</th>
+                <th>Guyya Qophae</th>
+                <th>Shapefile</th>
+                <th>Ragaa Biroo</th>
+                <th>Mallattoo</th>
+                <th>Bal.Lafa bahi ta'e</th>
+                <th>Balina Lafa Hafe</th>
+                <th>Ragaittin Bahe Tae</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in page_obj %}
+            <tr>
+                <td>{{ submission.Kutaamagaalaa }}</td>
+                <td>{{ submission.Aanaa }}</td>
+                <td>{{ submission.iddo_adda }}</td>
+                <td>{{ submission.lakk_adda }}</td>
+                <td>{{ submission.gosa_tajajila }}</td>
+                <td>{{ submission.madda_lafa }}</td>
+                <td>{{ submission.tajajila_iddo }}</td>
+                <td>{{ submission.haala_beenya }}</td>
+                <td>{{ submission.qamaa_qophaef }}</td>
+                <td>{{ submission.tajajila_qophaef }}</td>
+                <td>{{ submission.balina_lafa }}</td>
+                <td>{{ submission.kan_qophesse }}</td>
+                <td>{{ submission.guyya_qophae }}</td>
+                <td>  <a href="{{ submission.shapefile.url }}" class="btn btn-info" download>Shapefile buusi</a>
+                </td>
+                <td>
+                    <a href="{% url 'edit_submission' submission.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    {% if submission.Ragaa_biroo %}
+                        <img src="{{ submission.Ragaa_biroo.url }}" alt="Ragaa Biroo" width="40">
+                    {% else %}
+                        No image
+                    {% endif %}
+                </td>
+                <td>
+                    {% if submission.Mallattoo %}
+                        <img src="{{ submission.Mallattoo.url }}" alt="Mallattoo" width="30">
+                    {% else %}
+                        No image
+                    {% endif %}
+                </td>
+                <td>{{ submission.bal_lafa_bahi_tae }}</td>
+                <td>{{ submission.balina_lafa_hafe }}</td>
+                <td>
+                    {% if submission.ragaittin_bahi_tae %}
+                        <a href="{{ submission.ragaittin_bahi_tae.url }}" download>
+                            <img src="{{ submission.ragaittin_bahi_tae.url }}" alt="Ragaittin Bahe Tae" width="40">
+                        </a>
+                    {% else %}
+                        No file available
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="17" class="text-center">No submissions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination" style="text-align: center; margin-top: 20px;">
+        <span>
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-primary">Previous</a>
+            {% else %}
+                <button class="btn btn-outline-secondary" disabled>Previous</button>
+            {% endif %}
+
+            <span class="mx-3">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-primary">Next</a>
+            {% else %}
+                <button class="btn btn-outline-secondary" disabled>Next</button>
+            {% endif %}
+        </span>
+    </div>
+
+</div>
+{% endblock %}

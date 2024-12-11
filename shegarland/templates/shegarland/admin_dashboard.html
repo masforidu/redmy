@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gabatee Ragaa Admini{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="text-center mb-4">Kuusaa Galmee Bankii Lafaa</h1>
+    <h2 class="text-center mb-4">Admin Dashboard</h2>
+    
+    <a href="{% url 'export_submissions' %}" class="btn btn-success mb-3">Export Submissions as CSV</a>
+
+    <!-- Styled Submission Table -->
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: lavender;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4caf12;
+            color: #fff;
+        }
+    </style>
+
+    <table class="table table-striped table-hover table-responsive">
+        <thead class="thead-dark">
+            <tr>
+                <th>User</th>
+                <th>Kutaa Magaalaa</th>
+                <th>Aanaa</th>
+                <th>Iddo Adda</th>
+                <th>Lakk Adda</th>
+                <th>Gosa Tajajila</th>
+                <th>Madda Lafa</th>
+                <th>Tajajila Iddo</th>
+                <th>Haala Beenya</th>
+                <th>Qamaa Qophaef</th>
+                <th>Tajajila Qophaef</th>
+                <th>Balina Lafa</th>
+                <th>Guyya Qophae</th>
+                <th>Bal.Lafa bahi ta'e</th>
+                <th>Balina Lafa Hafe</th>
+                <th>Qaama bahi tahef</th>
+                <th>Tajajila bahe tahef</th>
+                <th>Kan bahi taasise</th>
+                <th>Guyyaa bahi ta'e</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in page_obj %}
+            <tr>
+                <td>{{ submission.user.username }}</td>
+                <td>{{ submission.Kutaamagaalaa }}</td>
+                <td>{{ submission.Aanaa }}</td>
+                <td>{{ submission.iddo_adda }}</td>
+                <td>{{ submission.lakk_adda }}</td>
+                <td>{{ submission.gosa_tajajila }}</td>
+                <td>{{ submission.madda_lafa }}</td>
+                <td>{{ submission.tajajila_iddo }}</td>
+                <td>{{ submission.haala_beenya }}</td>
+                <td>{{ submission.qamaa_qophaef }}</td>
+                <td>{{ submission.tajajila_qophaef }}</td>
+                <td>{{ submission.balina_lafa }}</td>
+                <td>{{ submission.guyya_qophae }}</td>
+                <td>{{ submission.bal_lafa_bahi_tae }}</td>
+                <td>{{ submission.balina_lafa_hafe }}</td>
+                <td>{{ submission.qaama_bahi_tahef }}</td>
+                <td>{{ submission.tajajila_bahi_tahef }}</td>
+                <td>{{ submission.kan_bahi_taasise }}</td>
+                <td>{{ submission.guyyaa_bahi_tae }}</td>
+                <td>
+                    <a href="{% url 'edit_submission' submission.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'delete_submission' submission.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="20" class="text-center">No submissions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination" style="text-align: center; margin: 20px 0;">
+        <span>
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-primary">Previous</a>
+            {% else %}
+                <button class="btn btn-outline-secondary" disabled>Previous</button>
+            {% endif %}
+
+            <span class="mx-3">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-primary">Next</a>
+            {% else %}
+                <button class="btn btn-outline-secondary" disabled>Next</button>
+            {% endif %}
+        </span>
+    </div>
+
+    <div style="text-align: center; margin: 10px 0;">
+        <a href="{% url 'dashboard' %}">Gara kuusa ragaa</a>
+    </div>
+</div>
+     <!-- UTM Coordinate Input Section -->
+     <div class="coordinates-input">
+        <label for="easting">UTM Easting:</label>
+        <input type="number" id="easting" placeholder="Enter UTM Easting" />
+        <label for="northing">UTM Northing:</label>
+        <input type="number" id="northing" placeholder="Enter UTM Northing" />
+        <button id="go-to-coordinates">Gara Koordi.Deemi</button>
+    </div>
+
+    <!-- Live Location Button -->
+    <button id="find-location">Find My Location</button>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- KML Upload -->
+    <input type="file" id="kml-file" accept=".kml" />
+    <button id="import-kml">KML Fidi</button>
+
+    <!-- Map and JS script here -->
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Integration</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <!-- Include Leaflet JS and leaflet-omnivore -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/leaflet-omnivore@latest/leaflet-omnivore.min.js"></script>
+    <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.js"></script>
+
+<!-- UTM conversion library -->
+<script src="https://cdn.jsdelivr.net/npm/proj4"></script>
+
+<script>
+    // Initialize the map and set its view to a default location and zoom level
+    var map = L.map('map').setView([0, 0], 2); // Adjust to your desired initial location
+
+    // Add the Google Satellite tile layer
+    L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=AIzaSyA8rBeGfJPkPAQwdSuo7YYuW1d2gqks_TA', {
+        maxZoom: 20,
+    }).addTo(map);
+    
+    // Initialize feature group to store drawn items
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    // Initialize Leaflet Draw controls
+    var drawControl = new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems // Specify the layer to edit
+        },
+        draw: {
+            polygon: true,
+            polyline: true,
+            rectangle: true,
+            circle: true,
+            marker: true,
+        }
+    });
+    map.addControl(drawControl);
+
+    // Event listener for shape creation
+    map.on('draw:created', function (e) {
+        var layer = e.layer;
+        drawnItems.addLayer(layer);
+    });
+
+    // Handle form submission
+    document.querySelector('form').addEventListener('submit', function(event) {
+        var geojsonData = JSON.stringify(drawnItems.toGeoJSON());
+        document.getElementById('geojson-input').value = geojsonData; // Populate hidden input
+    });
+
+    // Handle UTM Coordinate Input (for EPSG:32637)
+    document.getElementById('go-to-coordinates').addEventListener('click', function() {
+        var easting = parseFloat(document.getElementById('easting').value);  // X coordinate (Easting)
+        var northing = parseFloat(document.getElementById('northing').value);  // Y coordinate (Northing)
+
+        if (easting && northing) {
+            // Convert UTM (EPSG:32637) to Lat/Lon (EPSG:4326)
+            var latLng = proj4('EPSG:32637', 'EPSG:4326', [easting, northing]);
+            
+            // Set map view to the converted Lat/Lon and zoom in
+            map.setView([latLng[1], latLng[0]], 14);
+
+            // Add a marker at the converted Lat/Lon position
+            var marker = L.marker([latLng[1], latLng[0]]).addTo(map)
+                .bindPopup("Marker at UTM coordinates:<br>Easting: " + easting + "<br>Northing: " + northing)
+                .openPopup();
+        } else {
+            alert('Please enter valid UTM coordinates.');
+        }
+    });
+
+    // Handle live location
+    document.getElementById('find-location').addEventListener('click', function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                map.setView([lat, lng], 14);
+                L.marker([lat, lng]).addTo(map).bindPopup("You are here!").openPopup();
+            }, function() {
+                alert('Could not get your location.');
+            });
+        } else {
+            alert('Geolocation is not supported by this browser.');
+        }
+    });
+
+    // Handle KML import 
+    document.getElementById('import-kml').onclick = function() {
+        var fileInput = document.getElementById('kml-file');
+        if (fileInput.files.length > 0) {
+            var file = fileInput.files[0];
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                var kmlText = e.target.result;
+
+                // Debug: log the KML content
+                console.log("KML Content Loaded:", kmlText);
+
+                try {
+                    // Parse KML using leaflet-omnivore
+                    var kmlLayer = omnivore.kml.parse(kmlText);
+
+                    // Add the parsed KML layer to the map
+                    kmlLayer.addTo(map);
+                    
+                    // Fit map to KML layer bounds
+                    map.fitBounds(kmlLayer.getBounds());
+
+                    console.log("KML added to map successfully!");
+
+                } catch (error) {
+                    console.error("Error parsing or adding KML:", error);
+                    alert("Error adding KML to the map. Please check the KML file format.");
+                }
+            };
+
+            reader.onerror = function() {
+                console.error("Error reading the KML file");
+            };
+
+            reader.readAsText(file);  // Read KML file as text
+        } else {
+            alert("Please select a KML file to upload.");
+        }
+    };
+
+
+   // Handle GeoJSON export
+   document.getElementById('export-geojson').onclick = function() {
+    var geojson = drawnItems.toGeoJSON();
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(geojson));
+    var a = document.createElement('a');
+    a.setAttribute("href", dataStr);
+    a.setAttribute("download", "drawings.geojson");
+    a.click();
+};
+</script>
+</body>
+</html>
+</div>
+{% endblock %}
